@@ -22,7 +22,8 @@ def main():
         print(colour(use_colour, "[!] Login failed! Can you confirm that your email and password are correct?", colorama.Fore.RED))
         return
 
-    reqs = int(input(colour(use_colour, "[?] Requests per minute: ", colorama.Fore.MAGENTA))) or defaults["reqs"]
+    reqs_str = input(colour(use_colour, "[?] Requests per minute: ", colorama.Fore.MAGENTA))
+    reqs = int(reqs_str) if reqs_str != "" else defaults["reqs"]
     delay = 60 / reqs
 
     bearer = login.access_token
