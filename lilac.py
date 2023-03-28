@@ -1,21 +1,51 @@
-import requests, time, msmcauth, colorama, json
+import pip
+
+try:
+    import requests, time, msmcauth, colorama, json, os
+except ModuleNotFoundError:
+    
+    print("[ ] Installing requirements...")
+    pip.main(['install', 'colorama'])
+    
+    import colorama
+    colour = lambda text, colour=colorama.Fore.RESET, enable=True: text if not enable else colour + text + colorama.Fore.RESET
+
+    print(colour("[+] Installed colorama", colorama.Fore.GREEN))
+    pip.main(['install', 'requests'])
+    
+    print(colour("[+] Installed requests", colorama.Fore.GREEN))
+    pip.main(['install', 'msmcauth'])
+    
+    print(colour("[+] Installed msmcauth", colorama.Fore.GREEN))
+    print(colour("[+] Installed requirements!", colorama.Fore.GREEN))
+
+    import requests, time, msmcauth, json, os
+
+def colour(text, colour=colorama.Fore.RESET, enable=True):
+    if enable:
+        return colour + text + colorama.Fore.RESET
+    return text
+
 
 defaults = {
     "reqs": 3,
     "delay": 20,
 }
 
+if os.name == "nt":
+    colorama.just_fix_windows_console()
+
+
 def main(input_data=False):
 
     file_content = {}
 
     if input_data == False:
-        use_colour = input("Use color (May not work with some terminals)? (y/n): ").lower() == "y"
     
-        email = input(colour(use_colour, "[?] Email: ", colorama.Fore.MAGENTA))
-        password = input(colour(use_colour, "[?] Password: ", colorama.Fore.MAGENTA))
+        email = input(colour("[?] Email: ", colorama.Fore.MAGENTA))
+        password = input(colour("[?] Password: ", colorama.Fore.MAGENTA))
 
-        username = input(colour(use_colour, "[?] Username: ", colorama.Fore.MAGENTA))
+        username = input(colour("[?] Username: ", colorama.Fore.MAGENTA))
 
         file_content["email"] = email
         file_content["password"] = password
@@ -30,13 +60,13 @@ def main(input_data=False):
     
     try:
         login = msmcauth.login(email, password)
-        print(colour(use_colour, "[+] Logged in successfully!", colorama.Fore.GREEN))
+        print(colour("[+] Logged in successfully!", colorama.Fore.GREEN))
     except:
-        print(colour(use_colour, "[!] Login failed! Can you confirm that your email and password are correct?", colorama.Fore.RED))
+        print(colour("[!] Login failed! Can you confirm that your email and password are correct?", colorama.Fore.RED))
         return
 
     if input_data == False:
-        reqs_str = input(colour(use_colour, "[?] Requests per minute (Press enter for default): ", colorama.Fore.MAGENTA))
+        reqs_str = input(colour("[?] Requests per minute (Press enter for default): ", colorama.Fore.MAGENTA))
         reqs = int(reqs_str) if reqs_str != "" else defaults["reqs"]
         delay = 60 / reqs
 
@@ -49,7 +79,7 @@ def main(input_data=False):
     if file_content != {}:
         with open("lilac_data.json", "w") as f:
             json.dump(file_content, f)
-            print(colour(use_colour, "[+] Saved data to lilac_data.json", colorama.Fore.GREEN))
+            print(colour("[+] Saved data to lilac_data.json", colorama.Fore.GREEN))
 
     
 
@@ -65,24 +95,19 @@ def main(input_data=False):
             "Authorization": f"Bearer {bearer}",
         })
         if r.status_code == 200:
-            print(colour(use_colour, f"[+] Successfully changed username to {username} at {time.strftime('%H:%M:%S')}", colorama.Fore.GREEN))
+            print(colour(f"[+] Successfully changed username to {username} at {time.strftime('%H:%M:%S')}", colorama.Fore.GREEN))
             if input_data:
                 return True
             else:
-                input(colour(use_colour, "[!] Press enter to exit", colorama.Fore.GREEN))
+                input(colour("[!] Press enter to exit", colorama.Fore.GREEN))
             break
         elif r.status_code == 403:
-            print(colour(use_colour, f"[!] Failed to change username to {username} at {time.strftime('%H:%M:%S')}", colorama.Fore.RED))
+            print(colour(f"[!] Failed to change username to {username} at {time.strftime('%H:%M:%S')}", colorama.Fore.RED))
         else:
-            print(colour(use_colour, f"[!] Unknown error occured at {time.strftime('%H:%M:%S')}", colorama.Fore.RED))
-            print(colour(use_colour, f"    Status code: {r.status_code}", colorama.Fore.RED))
-            print(colour(use_colour, f"    Response: {r.text}", colorama.Fore.RED))
+            print(colour(f"[!] Unknown error occured at {time.strftime('%H:%M:%S')}", colorama.Fore.RED))
+            print(colour(f"    Status code: {r.status_code}", colorama.Fore.RED))
+            print(colour(f"    Response: {r.text}", colorama.Fore.RED))
         time.sleep(delay)
-
-def colour(enable, text, colour=colorama.Fore.RESET):
-    if enable:
-        return colour + text + colorama.Fore.RESET
-    return text
 
 
 if __name__ == '__main__':
