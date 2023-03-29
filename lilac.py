@@ -8,7 +8,7 @@ except ModuleNotFoundError:
     pip.main(['install', 'colorama'])
     
     import colorama
-    colour = lambda text, colour=colorama.Fore.RESET, enable=True: text if not enable else colour + text + colorama.Fore.RESET
+    colour = lambda text, colour=colorama.Fore.RESET, reset=colorama.Fore.RESET, enable=True: text if not enable else colour + text + reset
 
     print(colour("[+] Installed colorama", colorama.Fore.GREEN))
     pip.main(['install', 'requests'])
@@ -21,9 +21,9 @@ except ModuleNotFoundError:
 
     import requests, time, msmcauth, json, os
 
-def colour(text, colour=colorama.Fore.RESET, enable=True):
+def colour(text, colour=colorama.Fore.RESET, reset=colorama.Fore.RESET, enable=True):
     if enable:
-        return colour + text + colorama.Fore.RESET
+        return colour + text + reset
     return text
 
 
@@ -95,14 +95,14 @@ def main(input_data=False):
             "Authorization": f"Bearer {bearer}",
         })
         if r.status_code == 200:
-            print(colour(f"[+] Successfully changed username to {username} at {time.strftime('%H:%M:%S')}", colorama.Fore.GREEN))
+            print(colour(f"[+] [{colour(str(r.status_code), colorama.Fore.CYAN, colorama.Fore.GREEN)}] Successfully changed username to {username} at {time.strftime('%H:%M:%S')}", colorama.Fore.GREEN))
             if input_data:
                 return True
             else:
                 input(colour("[!] Press enter to exit", colorama.Fore.GREEN))
             break
-        elif r.status_code == 403:
-            print(colour(f"[!] Failed to change username to {username} at {time.strftime('%H:%M:%S')}", colorama.Fore.RED))
+        elif r.status_code == 403 or r.status_code == 429:
+            print(colour(f"[!] [{colour(str(r.status_code), colorama.Fore.CYAN, colorama.Fore.RED)}] Failed to change username to {username} at {time.strftime('%H:%M:%S')}", colorama.Fore.RED))
         else:
             print(colour(f"[!] Unknown error occured at {time.strftime('%H:%M:%S')}", colorama.Fore.RED))
             print(colour(f"    Status code: {r.status_code}", colorama.Fore.RED))
